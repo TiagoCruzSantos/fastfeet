@@ -1,0 +1,32 @@
+{
+  "name": "fastfeet",
+  "version": "1.0.0",
+  "description": "Desafio do GoStack - FastFeet",
+  "main": "src/server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon src/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TiagoCruzSantos/fastfeet.git"
+  },
+  "author": "Tiago Cruz",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/TiagoCruzSantos/fastfeet/issues"
+  },
+  "homepage": "https://github.com/TiagoCruzSantos/fastfeet#readme",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1",
+    "pg": "^8.0.2",
+    "pg-hstore": "^2.3.3",
+    "sequelize": "^5.21.6",
+    "yup": "^0.28.3"
+  },
+  "devDependencies": {
+    "dotenv": "^8.2.0"
+  }
+}
