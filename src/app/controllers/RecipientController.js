@@ -10,7 +10,7 @@ class RecipientController {
             complement: Yup.string(),
             state: Yup.string().required(),
             city: Yup.string().required(),
-            cep: Yup.string().required().matches(/\d{5}-\d{3}/)
+            cep: Yup.string().required().matches(/^\d{5}-\d{3}$/)
         })
         if(!(await schema.isValid(req.body))){
             return res.status(400).json({error: 'Validation failed'})
