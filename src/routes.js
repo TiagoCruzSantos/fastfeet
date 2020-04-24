@@ -5,5 +5,6 @@ const auth = require('./app/middlewares/auth')
 const routes = new express.Router()
 
 routes.post('/sessions', SessionController.store)
-routes.post('/recipient', auth, RecipientController.store)
+routes.post('/recipients', auth, RecipientController.store)
+routes.put('/recipients/:recipientId', auth, RecipientController.update)
 module.exports = routes
