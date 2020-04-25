@@ -13,6 +13,8 @@ class Recipient extends Sequelize.Model{
         },{
             sequelize
         })
+
+        return this
     }
 }
 
