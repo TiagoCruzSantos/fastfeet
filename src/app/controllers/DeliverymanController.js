@@ -3,15 +3,17 @@ const File = require('../models/File')
 const Yup = require('yup')
 
 class DeliverymanController{
-    //TODO: implementar paginação
     async index(req, res){
+        const {page = 1} = req.query
         const deliverymen = await Deliveryman.findAll({
             attributes: ['name', 'email', 'id'],
             include: [{
                 model: File,
                 as: 'avatar',
                 attributes: ['path','url']
-            }]
+            }],
+            limit: 20,
+            offset: (page - 1) * 20
         })
         return res.json(deliverymen)
     }

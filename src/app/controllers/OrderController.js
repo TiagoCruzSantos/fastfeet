@@ -1,13 +1,38 @@
 const Order = require('../models/Order')
 const Recipient = require('../models/Recipient')
 const Deliveryman = require('../models/Deliveryman')
+const File = require('../models/File')
 const Yup = require('yup')
 
 class OrderController{
-    //TODO: implementar paginação
     async index(req, res){
+        const {page = 1} = req.query
 
-        return res.json()
+        const orders = await Order.findAll({
+            attributes: ['id', 'product', 'canceled_at', 'start_date', 'end_date'],
+            include: [{
+                model: File,
+                as: 'signature',
+                attributes: ['id', 'path', 'url']
+            },{
+                model: Recipient,
+                as: 'recipient',
+                attributes: ['id', 'name', 'street', 'number', 'complement', 'state', 'city', 'cep']
+            },{
+                model: Deliveryman,
+                as: 'deliveryman',
+                attributes: ['id', 'name', 'email'],
+                include: [{
+                    model: File,
+                    as: 'avatar',
+                    attributes: ['id', 'path', 'url']
+                }]
+            }],
+            limit: 20,
+            offset: (page - 1) * 20
+        })
+
+        return res.json(orders)
     }
 
     async store(req, res){

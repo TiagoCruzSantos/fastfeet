@@ -23,5 +23,6 @@ routes.get('/deliverymen', DeliverymanController.index)
 routes.delete('/deliverymen/:deliverymanId', DeliverymanController.delete)
 
 routes.post('/orders', OrderController.store)
+routes.get('/orders', OrderController.index)
 
 module.exports = routes
