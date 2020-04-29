@@ -79,12 +79,13 @@ class DeliverymanController{
             }
         }
 
-        deliveryman.email = email
-        deliveryman.name = name
-        deliveryman.avatar_id = avatar_id
-        await deliveryman.save()
+        await deliveryman.update(req.body)
 
-        return res.json(deliveryman)
+        return res.json({
+            name,
+            email,
+            avatar_id
+        })
     }
 
     async delete(req,res){

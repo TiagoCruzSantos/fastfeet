@@ -3,6 +3,7 @@ const Recipient = require('../models/Recipient')
 const Deliveryman = require('../models/Deliveryman')
 const File = require('../models/File')
 const Yup = require('yup')
+const {parseISO} = require('date-fns')
 
 class OrderController{
     async index(req, res){
@@ -65,11 +66,46 @@ class OrderController{
     }
 
     async update(req, res){
-        return res.json()
+        const schema = Yup.object().shape({
+            recipient_id: Yup.number(),
+            deliveryman_id: Yup.number(),
+            product: Yup.string(),
+            canceled_at: Yup.string(),
+            start_date: Yup.string(),
+            end_date: Yup.string(),
+            signature_id: Yup.number().when('end_date', (end_date, field) => 
+                (end_date ? field.required() : field)
+            ),
+        })
+
+        if(!(await schema.isValid(req.body))){
+            return res.json({error: 'Validation failed'})
+        }
+
+        const order = await Order.findByPk(req.params.orderId)
+
+        if(!order){
+            return res.status(401).json({error: 'This order does not exist'})
+        }
+        
+        req.body.canceled_at = req.body.canceled_at ? parseISO(req.body.canceled_at) : undefined
+        req.body.start_date = req.body.start_date ? parseISO(req.body.start_date) : undefined
+        req.body.end_date = req.body.end_date ? parseISO(req.body.end_date) : undefined
+
+        await order.update(req.body)
+
+        return res.json(order)
     }
 
     async delete(req, res){
-        return res.json()
+        const order = await Order.findByPk(req.params.orderId)
+
+        if(!order){
+            return res.status(401).json({error: 'This order does not exist'})
+        }
+
+        order.destroy()
+        return res.json(order)
     }
 }
 
