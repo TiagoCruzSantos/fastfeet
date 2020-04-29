@@ -1,6 +1,7 @@
 const Order = require('../models/Order')
 const Recipient = require('../models/Recipient')
-const {parseISO} = require('date-fns')
+const {parseISO, startOfDay, endOfDay} = require('date-fns')
+const {Op} = require('sequelize')
 const Yup = require('yup')
 
 class DeliveriyController{
@@ -16,7 +17,8 @@ class DeliveriyController{
                 deliveryman_id: req.params.deliverymanId,
                 canceled_at: null,
                 end_date: null
-            }
+            },
+            order: ['id']
         })
 
         return res.json(orders)
@@ -24,10 +26,9 @@ class DeliveriyController{
 
 
     async update(req, res){
-        //TODO: 5 retiradas por dia
         const schema = Yup.object().shape({
-            start_date: Yup.string(),
-            end_date: Yup.string(),
+            start_date: Yup.boolean(),
+            end_date: Yup.boolean(),
             signature_id: Yup.number().when('end_date', (end_date, field) => 
                 (end_date ? field.required() : field)
             )
@@ -39,12 +40,28 @@ class DeliveriyController{
 
         const order = await Order.findByPk(req.params.deliveryId)
 
+        
         if(!order){
             return res.status(401).json({error: 'Order does not exist'})
         }
-
+        
         if(order.deliveryman_id !== parseInt(req.params.deliverymanId)){
             return res.status(400).json({error: 'This deliveryman is not assingned to this delivery'})
+        }
+        
+        const today = new Date()
+
+        const todayStartedOrders = await Order.findAll({
+            where: {
+                deliveryman_id: parseInt(req.params.deliverymanId),
+                start_date: {
+                    [Op.between]: [startOfDay(today), endOfDay(today)]
+                }
+            }
+        })
+
+        if(todayStartedOrders.length >= 5){
+            return res.status(400).json({error: 'You cannot start a new delivery. You have already started 5 deliveries today'})
         }
 
         const {start_date, end_date, signature_id} = req.body
@@ -57,8 +74,8 @@ class DeliveriyController{
             return res.status(400).json({error: 'This order does not have a start date'})
         }
 
-        req.body.start_date = req.body.start_date ? parseISO(req.body.start_date) : undefined
-        req.body.end_date = req.body.end_date ? parseISO(req.body.end_date) : undefined
+        req.body.start_date = req.body.start_date ? today : undefined
+        req.body.end_date = req.body.end_date ? today : undefined
 
         await order.update(req.body)
 
