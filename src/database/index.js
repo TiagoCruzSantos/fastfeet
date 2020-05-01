@@ -4,9 +4,10 @@ const Recipient = require('../app/models/Recipient')
 const File = require('../app/models/File')
 const Deliveryman = require('../app/models/Deliveryman')
 const Order = require('../app/models/Order')
+const Problem = require('../app/models/Problem')
 const databaseConfig = require('../config/database')
 
-const models = [User, Recipient, File, Deliveryman, Order]
+const models = [User, Recipient, File, Deliveryman, Order, Problem]
 
 class Database {
     constructor(){
