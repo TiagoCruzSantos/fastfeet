@@ -2,6 +2,7 @@ const Order = require('../models/Order')
 const Recipient = require('../models/Recipient')
 const Deliveryman = require('../models/Deliveryman')
 const File = require('../models/File')
+const Mail = require('../../lib/Mail')
 const Yup = require('yup')
 const {parseISO} = require('date-fns')
 
@@ -60,7 +61,21 @@ class OrderController{
 
         const order = await Order.create(req.body)
 
-        //enviar email
+        await Mail.sendMail({
+            to: `${deliveryman.name} <${deliveryman.email}>`,
+            subject: 'Nova entrega',
+            template: 'delivery_created',
+            context: {
+                deliveryman_name: deliveryman.name,
+                recipient_name: recipient.name,
+                recipient_street: recipient.street,
+                recipient_number: recipient.number,
+                recipient_complement: recipient.complement,
+                recipient_state: recipient.state,
+                recipient_city: recipient.city,
+                recipient_cep: recipient.cep
+            }
+        })
 
         return res.json(order)
     }

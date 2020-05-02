@@ -1,5 +1,8 @@
 const Problem = require('../models/Problem')
 const Order = require('../models/Order')
+const Recipient = require('../models/Recipient')
+const Deliveryman = require('../models/Deliveryman')
+const Mail = require('../../lib/Mail')
 const Yup = require('yup')
 
 class ProblemsController{
@@ -43,10 +46,16 @@ class ProblemsController{
         const problem  = await Problem.findByPk(req.params.problemId, {
             include :[{
                 model: Order,
-                as: 'delivery'
+                as: 'delivery',
+                include: [{
+                    model: Recipient,
+                    as: 'recipient'
+                }, {
+                    model: Deliveryman,
+                    as: 'deliveryman'
+                }]
             }]
         })
-
 
         if(!problem){
             return res.status(404).json({error: 'There are no problems with this id'})
@@ -55,6 +64,22 @@ class ProblemsController{
         const delivery = problem.delivery
 
         await delivery.update({canceled_at: new Date()})
+
+        const deliveryman = problem.delivery.deliveryman
+        const recipient = problem.delivery.recipient
+
+        await Mail.sendMail({
+            to: `${deliveryman.name} <${deliveryman.email}>`,
+            subject: 'Entrega cancelada',
+            template: 'cancellation',
+            context: {
+                deliveryman_name: deliveryman.name,
+                recipient_id: recipient.id,
+                delivery_id: problem.delivery.id,
+                product: problem.delivery.product,
+                reason: problem.description
+            }
+        })
 
         return res.json(delivery)
     }
